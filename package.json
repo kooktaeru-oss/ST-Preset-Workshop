@@ -1,9 +1,9 @@
 {
   "name": "st-preset-workshop",
-  "version": "2.53.0",
+  "version": "2.54.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check dist/index.js && node scripts/validate.mjs"
+    "check": "node --check dist/index.js && node scripts/validate.mjs && node scripts/test-v254-branch-groups.mjs"
   }
 }
