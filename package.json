@@ -1,0 +1,9 @@
+{
+  "name": "st-preset-workshop",
+  "version": "2.53.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check dist/index.js && node scripts/validate.mjs"
+  }
+}

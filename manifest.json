@@ -1,0 +1,12 @@
+{
+  "display_name": "🧩预设工坊",
+  "loading_order": 110,
+  "requires": [],
+  "optional": [],
+  "js": "dist/index.js",
+  "author": "kookt",
+  "version": "2.53.0",
+  "homePage": "https://github.com/kooktaeru-oss/ST-Preset-Workshop",
+  "auto_update": true,
+  "minimum_client_version": "1.12.13"
+}
