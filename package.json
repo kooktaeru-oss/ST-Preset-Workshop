@@ -1,9 +1,9 @@
 {
   "name": "st-preset-workshop",
-  "version": "2.58.0",
+  "version": "2.59.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check dist/index.js && node --check dist/workshop-v2.58.js && node scripts/validate.mjs && node scripts/test-v254-branch-groups.mjs && node scripts/test-v255-branch-render.mjs && node scripts/test-v256-floating-branch-ui.mjs && node scripts/test-v257-preset-width.mjs && node scripts/test-v258-unified-range.mjs"
+    "check": "node --check dist/index.js && node --check dist/workshop-v2.59.js && node scripts/validate.mjs && node scripts/test-v254-branch-groups.mjs && node scripts/test-v255-branch-render.mjs && node scripts/test-v256-floating-branch-ui.mjs && node scripts/test-v257-preset-width.mjs && node scripts/test-v258-unified-range.mjs && node scripts/test-v259-floating-entry.mjs"
   }
 }

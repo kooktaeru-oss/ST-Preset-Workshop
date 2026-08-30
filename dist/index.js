@@ -1,8 +1,13 @@
 const EXTENSION_NAME = '🧩预设工坊';
+const EXTENSION_VERSION = '2.59.0';
 const RUNTIME_ID = 'TH-script--🧩预设工坊（GitHub 扩展）--2f53f6af-3c9e-4c71-bc52-9f635be25300';
 const LEGACY_IFRAME_PREFIX = 'TH-script--🧩预设工坊';
 const HELPER_WAIT_TIMEOUT = 60_000;
 const LEGACY_GRACE_PERIOD = 3_000;
+const VERSION_CHECK_INTERVAL = 3_000;
+
+let versionCheckTimer = null;
+let versionCheckBusy = false;
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -11,6 +16,51 @@ function notify(type, message) {
   if (typeof toast === 'function') {
     toast(message, EXTENSION_NAME);
   }
+}
+
+async function readInstalledVersion() {
+  const manifestUrl = new URL('../manifest.json', import.meta.url);
+  manifestUrl.searchParams.set('_pmm_version_check', String(Date.now()));
+  const response = await fetch(manifestUrl, { cache: 'no-store', credentials: 'same-origin' });
+  if (!response.ok) {
+    throw new Error(`读取扩展版本失败：HTTP ${response.status}`);
+  }
+  const manifest = await response.json();
+  return String(manifest?.version || '').trim();
+}
+
+async function checkForInstalledUpdate() {
+  if (versionCheckBusy) return;
+  versionCheckBusy = true;
+  try {
+    const nextVersion = await readInstalledVersion();
+    if (!nextVersion || nextVersion === EXTENSION_VERSION) return;
+
+    /* 给扩展更新器一点时间写完全部文件，再确认一次，避免在更新中途刷新。 */
+    await sleep(900);
+    if (await readInstalledVersion() !== nextVersion) return;
+
+    stopVersionWatcher();
+    notify('info', `扩展已更新至 v${nextVersion}，正在自动刷新酒馆`);
+    await sleep(450);
+    globalThis.location.reload();
+  } catch (error) {
+    console.debug(`[${EXTENSION_NAME}] 暂未检测到可自动载入的新版本。`, error);
+  } finally {
+    versionCheckBusy = false;
+  }
+}
+
+function startVersionWatcher() {
+  if (versionCheckTimer !== null) return;
+  void checkForInstalledUpdate();
+  versionCheckTimer = globalThis.setInterval(() => void checkForInstalledUpdate(), VERSION_CHECK_INTERVAL);
+}
+
+function stopVersionWatcher() {
+  if (versionCheckTimer === null) return;
+  globalThis.clearInterval(versionCheckTimer);
+  versionCheckTimer = null;
 }
 
 function findLegacyRuntime() {
@@ -45,7 +95,7 @@ async function waitForTavernHelper() {
 function buildRuntimeDocument() {
   const parentJqueryUrl = new URL('../bridge/parent-jquery.js', import.meta.url).href;
   const predefineUrl = new URL('../bridge/predefine.js', import.meta.url).href;
-  const workshopUrl = new URL('./workshop-v2.58.js', import.meta.url).href;
+  const workshopUrl = new URL('./workshop-v2.59.js', import.meta.url).href;
 
   return `<!DOCTYPE html>
 <html>
@@ -64,6 +114,7 @@ function buildRuntimeDocument() {
 }
 
 export async function startPresetWorkshop() {
+  startVersionWatcher();
   const currentRuntime = document.getElementById(RUNTIME_ID);
   if (currentRuntime) {
     return currentRuntime;
@@ -99,20 +150,21 @@ export async function startPresetWorkshop() {
   document.body.appendChild(iframe);
 
   iframe.addEventListener('load', () => {
-    console.info(`[${EXTENSION_NAME}] GitHub 扩展运行环境已启动（v2.58）`);
+    console.info(`[${EXTENSION_NAME}] GitHub 扩展运行环境已启动（v2.59）`);
   }, { once: true });
 
   return iframe;
 }
 
 export function stopPresetWorkshop() {
+  stopVersionWatcher();
   document.getElementById(RUNTIME_ID)?.remove();
 }
 
 globalThis.__ST_PRESET_WORKSHOP__ = {
   start: startPresetWorkshop,
   stop: stopPresetWorkshop,
-  version: '2.58.0',
+  version: EXTENSION_VERSION,
 };
 
 if (document.readyState === 'loading') {
