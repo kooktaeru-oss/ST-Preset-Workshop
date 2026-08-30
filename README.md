@@ -1,6 +1,6 @@
 # 🧩预设工坊
 
-适用于 SillyTavern 的双端预设管理扩展，首个扩展版本由酒馆助手脚本 **v2.53** 无损迁移而来，当前版本为 **v2.73**。
+适用于 SillyTavern 的双端预设管理扩展，首个扩展版本由酒馆助手脚本 **v2.53** 无损迁移而来，当前版本为 **v2.74**。
 
 本仓库是正常浏览器版，不包含 Gecko 后台 iframe 实验补丁。Firefox、雨见等 Gecko／GeckoView 手机浏览器请改用 [Gecko 兼容测试版](https://github.com/kooktaeru-oss/ST-Preset-Workshop-Gecko)，请勿同时安装两个版本。
 
@@ -21,7 +21,7 @@
 
 ## 当前版本
 
-- 扩展版本：`2.73.0`
+- 扩展版本：`2.74.0`
 - 迁移基准：`🧩预设工坊｜双端适配v2.53`
 - 第一阶段保持原脚本行为，不在迁移过程中重写业务逻辑。
 
@@ -29,7 +29,7 @@
 
 - `manifest.json`：SillyTavern 扩展清单。
 - `dist/index.js`：标准 SillyTavern 扩展启动器。
-- `dist/workshop-v2.73.js`：当前业务入口；新增变量不会因折叠或切换条目误失，仅在撤销或删除后按完整预设数据安全校准。
+- `dist/workshop-v2.74.js`：当前业务入口；主预设保存后，柏宝箱分组内条目名称会按稳定 ID 即时同步，无需切换预设刷新。
 - `dist/workshop-v2.53.js`：由 v2.53 JSON 的 `content` 原样提取的迁移基准。
 - `bridge/`：复用酒馆助手运行环境所需的兼容桥。
 - `legacy/`：迁移前的原始酒馆助手脚本，仅用于校验和回退。
