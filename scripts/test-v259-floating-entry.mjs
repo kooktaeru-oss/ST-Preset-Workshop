@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 
 const source = await readFile(new URL('../dist/workshop-v2.59.js', import.meta.url), 'utf8');
 const entry = await readFile(new URL('../dist/index.js', import.meta.url), 'utf8');
+const manifest = JSON.parse(await readFile(new URL('../manifest.json', import.meta.url), 'utf8'));
 
 assert.ok(source.includes('floatingWidth: 200'), '悬浮入口默认长度没有缩短到 200px');
 assert.ok(source.includes('floatingWidth: [180, 420]'), '悬浮入口调节范围没有允许紧凑宽度');
@@ -16,7 +17,10 @@ assert.ok(source.includes('const horizontalThreshold ='), '箭头横拖没有短
 assert.ok(source.includes("if (dx <= -horizontalThreshold) nextDock = 'left'"), '向左横拖不能吸附左侧');
 assert.ok(source.includes("else if (dx >= horizontalThreshold) nextDock = 'right'"), '向右横拖不能吸附右侧');
 
-assert.ok(entry.includes("const EXTENSION_VERSION = '2.59.0'"), '自动刷新没有使用当前扩展版本');
+assert.ok(
+  entry.includes(`const EXTENSION_VERSION = '${manifest.version}'`),
+  '自动刷新没有使用当前扩展版本',
+);
 assert.ok(entry.includes("new URL('../manifest.json', import.meta.url)"), '自动刷新没有读取本地扩展清单');
 assert.ok(entry.includes("cache: 'no-store'"), '版本检查仍可能读取缓存');
 assert.ok(entry.includes('await sleep(900)'), '更新文件没有二次确认写入完成');
