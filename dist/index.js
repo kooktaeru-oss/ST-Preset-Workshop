@@ -1,5 +1,5 @@
 const EXTENSION_NAME = '🧩预设工坊';
-const EXTENSION_VERSION = '2.69.0';
+const EXTENSION_VERSION = '2.70.0';
 const RUNTIME_ID = 'TH-script--🧩预设工坊（GitHub 扩展）--2f53f6af-3c9e-4c71-bc52-9f635be25300';
 const LEGACY_IFRAME_PREFIX = 'TH-script--🧩预设工坊';
 const HELPER_WAIT_TIMEOUT = 60_000;
@@ -95,7 +95,7 @@ async function waitForTavernHelper() {
 function buildRuntimeDocument() {
   const parentJqueryUrl = new URL('../bridge/parent-jquery.js', import.meta.url).href;
   const predefineUrl = new URL('../bridge/predefine.js', import.meta.url).href;
-  const workshopUrl = new URL('./workshop-v2.69.js', import.meta.url).href;
+  const workshopUrl = new URL('./workshop-v2.70.js', import.meta.url).href;
 
   return `<!DOCTYPE html>
 <html>
@@ -149,7 +149,7 @@ export async function startPresetWorkshop() {
   document.body.appendChild(iframe);
 
   iframe.addEventListener('load', () => {
-    console.info(`[${EXTENSION_NAME}] GitHub 扩展运行环境已启动（v2.69）`);
+    console.info(`[${EXTENSION_NAME}] GitHub 扩展运行环境已启动（v2.70）`);
   }, { once: true });
 
   return iframe;
