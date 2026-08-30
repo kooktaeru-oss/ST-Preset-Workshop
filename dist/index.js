@@ -45,7 +45,7 @@ async function waitForTavernHelper() {
 function buildRuntimeDocument() {
   const parentJqueryUrl = new URL('../bridge/parent-jquery.js', import.meta.url).href;
   const predefineUrl = new URL('../bridge/predefine.js', import.meta.url).href;
-  const workshopUrl = new URL('./workshop-v2.54.js', import.meta.url).href;
+  const workshopUrl = new URL('./workshop-v2.55.js', import.meta.url).href;
 
   return `<!DOCTYPE html>
 <html>
@@ -99,7 +99,7 @@ export async function startPresetWorkshop() {
   document.body.appendChild(iframe);
 
   iframe.addEventListener('load', () => {
-    console.info(`[${EXTENSION_NAME}] GitHub 扩展运行环境已启动（v2.54）`);
+    console.info(`[${EXTENSION_NAME}] GitHub 扩展运行环境已启动（v2.55）`);
   }, { once: true });
 
   return iframe;
@@ -112,7 +112,7 @@ export function stopPresetWorkshop() {
 globalThis.__ST_PRESET_WORKSHOP__ = {
   start: startPresetWorkshop,
   stop: stopPresetWorkshop,
-  version: '2.54.0',
+  version: '2.55.0',
 };
 
 if (document.readyState === 'loading') {
