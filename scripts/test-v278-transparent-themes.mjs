@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 
-const source = await readFile(new URL('../dist/workshop-v2.81.js', import.meta.url), 'utf8');
+const source = await readFile(new URL('../dist/workshop-v2.82.js', import.meta.url), 'utf8');
 const helperStart = source.indexOf('function xn(e,n)');
 const helperEnd = source.indexOf('const fn=', helperStart);
 
@@ -59,6 +59,6 @@ assert.ok(source.includes("getPropertyValue('--SmartThemeBlurTintColor')"), '应
 assert.ok(source.includes("getPropertyValue('--SmartThemeBodyColor')"), '应读取酒馆主题正文色');
 assert.ok(source.includes('_pmmThemeSurfaceOr(e,_pmmThemeCardFromPanel(A,.92),.92)'), '透明条目应回退到同色系卡片');
 assert.ok(source.includes('_pmmReadableThemeTextForSurfaces([A,a],o,4.5)'), '正文颜色应同时校验面板和卡片');
-assert.ok(source.includes('V2.78 已加载：魔法棒忽略透明假黑'), '缺少 v2.78 加载标记');
+assert.ok(source.includes('V2.82 已加载：从 v2.78 干净基线恢复缝合交互'), '当前运行版没有保留 v2.78 干净基线');
 
 console.log('v2.78 透明主题测试通过：粉色透明层保持浅色，夜间实体卡片保持深色，文字对比度同步校验。');
