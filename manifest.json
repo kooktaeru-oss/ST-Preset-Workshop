@@ -6,7 +6,7 @@
   "js": "dist/index.js",
   "author": "kookt",
   "version": "2.76.0",
-  "homePage": "https://github.com/kooktaeru-oss/ST-Preset-Workshop",
+  "homePage": "https://github.com/yui-ovo/ST-Preset-Workshop",
   "auto_update": true,
   "minimum_client_version": "1.12.13"
 }

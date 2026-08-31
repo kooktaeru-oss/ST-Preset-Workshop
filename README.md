@@ -2,7 +2,7 @@
 
 适用于 SillyTavern 的双端预设管理扩展，首个扩展版本由酒馆助手脚本 **v2.53** 无损迁移而来，当前版本为 **v2.76**。
 
-本仓库是正常浏览器版，不包含 Gecko 后台 iframe 实验补丁。Firefox、雨见等 Gecko／GeckoView 手机浏览器请改用 [Gecko 兼容测试版](https://github.com/kooktaeru-oss/ST-Preset-Workshop-Gecko)，请勿同时安装两个版本。
+本仓库是正常浏览器版，不包含 Gecko 后台 iframe 实验补丁。Firefox、雨见等 Gecko／GeckoView 手机浏览器请改用 [Gecko 兼容测试版](https://github.com/yui-ovo/ST-Preset-Workshop-Gecko)，请勿同时安装两个版本。
 
 ## 依赖
 
@@ -16,7 +16,7 @@
 
 1. 打开 SillyTavern 的“扩展”。
 2. 选择“安装扩展”。
-3. 粘贴本仓库的 Git URL：`https://github.com/kooktaeru-oss/ST-Preset-Workshop.git`。
+3. 粘贴本仓库的 Git URL：`https://github.com/yui-ovo/ST-Preset-Workshop.git`。
 4. 安装完成后刷新 SillyTavern。
 
 ## 当前版本
