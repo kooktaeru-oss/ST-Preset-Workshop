@@ -2,11 +2,11 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const entry = await readFile(new URL('../dist/index.js', import.meta.url), 'utf8');
-const source = await readFile(new URL('../dist/workshop-v2.92.js', import.meta.url), 'utf8');
+const source = await readFile(new URL('../dist/workshop-v2.93.js', import.meta.url), 'utf8');
 
 assert.ok(entry.includes('iframe.hidden = true'), '正常浏览器版没有保留稳定的 hidden 后台方式');
 assert.ok(!entry.includes("left: '-10000px'"), '正常浏览器版重新混入了 Gecko 屏幕外 iframe 补丁');
-assert.ok(entry.includes("new URL('./workshop-v2.92.js', import.meta.url)"), '启动器没有指向当前 v2.92');
+assert.ok(entry.includes("new URL('./workshop-v2.93.js', import.meta.url)"), '启动器没有指向当前 v2.93');
 
 for (const snippet of [
   "branchWidth: 0",
@@ -30,8 +30,10 @@ assert.ok(
   capture.includes(".pm-panel-container--branch-mode > .preset-panel .pm-header"),
   '分支卡片没有独立测量标题宽度',
 );
-assert.ok(capture.includes("valueKey:'presetWidth'"), '预设宽度测量没有写回预设滑杆');
-assert.ok(capture.includes("valueKey:'branchWidth'"), '分支宽度测量没有写回分支滑杆');
+assert.ok(capture.includes("customKey:'presetWidth'"), '预设名称框没有使用独立样式状态');
+assert.ok(capture.includes("customKey:'branchWidth'"), '分支名称框没有使用独立样式状态');
+assert.ok(!capture.includes("valueKey:'presetWidth'"), '预设宽度测量仍会改写滑杆值');
+assert.ok(!capture.includes("valueKey:'branchWidth'"), '分支宽度测量仍会改写滑杆值');
 
 const presetCssStart = source.indexOf('/* “预设名称框长度”同步控制主预设和缝合页');
 const branchCssStart = source.indexOf('/* 分支卡片使用独立的“分支名称框长度”', presetCssStart);
