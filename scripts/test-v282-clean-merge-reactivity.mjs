@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const source = await readFile(new URL('../dist/workshop-v2.85.js', import.meta.url), 'utf8');
+const source = await readFile(new URL('../dist/workshop-v2.86.js', import.meta.url), 'utf8');
 
 assert.ok(!source.includes('function _pmmTogglePromptEnabledImmutable'), 'v2.79 的尝试性开关辅助函数不应进入当前运行版');
 assert.ok(!source.includes('function _pmmToggleMergePromptEnabled'), 'v2.80 的跨作用域辅助函数不应进入当前运行版');

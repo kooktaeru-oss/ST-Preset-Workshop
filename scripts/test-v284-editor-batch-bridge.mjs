@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 
-const source = await readFile(new URL('../dist/workshop-v2.85.js', import.meta.url), 'utf8');
+const source = await readFile(new URL('../dist/workshop-v2.86.js', import.meta.url), 'utf8');
 const start = source.indexOf('function selectedBatchContext(editor, panel)');
 const end = source.indexOf('function applyTheme(dialog, panel)', start);
 assert.ok(start >= 0 && end > start, '无法定位从展开编辑器读取多选面板的桥');
