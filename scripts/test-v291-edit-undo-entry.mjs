@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
-const source = await readFile(new URL('../dist/workshop-v2.91.js', import.meta.url), 'utf8');
+const source = await readFile(new URL('../dist/workshop-v2.92.js', import.meta.url), 'utf8');
 
 const floatingStart = source.indexOf('PMM_FLOATING_PANEL_BATCH_V1');
 assert.ok(floatingStart >= 0, '缺少手机悬浮入口模块');
