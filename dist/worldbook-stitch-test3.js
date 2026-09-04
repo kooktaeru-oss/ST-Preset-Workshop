@@ -2287,8 +2287,8 @@
   }
 
   function clearNativeDropIndicators() {
-    state.nativeTop?.querySelectorAll('.prompt-item--drop-before,.prompt-item--drop-after,.prompt-card--drop-before,.prompt-card--drop-after,.prompt-panel__list--drop-target').forEach(node => {
-      node.classList.remove('prompt-item--drop-before', 'prompt-item--drop-after', 'prompt-card--drop-before', 'prompt-card--drop-after', 'prompt-panel__list--drop-target');
+    state.nativeTop?.querySelectorAll('.prompt-item--drop-before,.prompt-item--drop-after,.prompt-card--drop-before,.prompt-card--drop-after,.section-card--drop-before,.section-card--drop-after,.section-card--drop-into,.section-group--drop-before,.section-group--drop-after,.section-group--drop-into,.prompt-panel__list--drop-target').forEach(node => {
+      node.classList.remove('prompt-item--drop-before', 'prompt-item--drop-after', 'prompt-card--drop-before', 'prompt-card--drop-after', 'section-card--drop-before', 'section-card--drop-after', 'section-card--drop-into', 'section-group--drop-before', 'section-group--drop-after', 'section-group--drop-into', 'prompt-panel__list--drop-target');
     });
   }
 
@@ -2296,6 +2296,17 @@
     state.host?.querySelectorAll?.('.pmm-wb-entry--drop-before,.pmm-wb-entry--drop-after,.pmm-wb-list--drop-empty,.pmm-wb-list--drop-target,.pmm-wb-panel--drop-target').forEach(node => {
       node.classList.remove('pmm-wb-entry--drop-before', 'pmm-wb-entry--drop-after', 'pmm-wb-list--drop-empty', 'pmm-wb-list--drop-target', 'pmm-wb-panel--drop-target');
     });
+  }
+
+  function scheduleDropIndicatorCleanup() {
+    clearNativeDropIndicators();
+    clearWorldDropIndicators();
+    for (const delay of [0, 80, 240]) {
+      TOP.setTimeout(() => {
+        clearNativeDropIndicators();
+        clearWorldDropIndicators();
+      }, delay);
+    }
   }
 
   function removeWorldMultiDragFloat() {
@@ -2494,7 +2505,8 @@
       removeWorldMultiDragFloat();
       clearNativeDropIndicators();
       clearWorldDropIndicators();
-      if (placement) void reorderWorldEntries(targetSide, payload.keys, placement);
+      if (placement) void reorderWorldEntries(targetSide, payload.keys, placement).finally(scheduleDropIndicatorCleanup);
+      else scheduleDropIndicatorCleanup();
       return;
     }
     if (isUnsupportedPresetToWorldDrop(targetSide)) {
@@ -2505,6 +2517,7 @@
       removeWorldMultiDragFloat();
       clearNativeDropIndicators();
       clearWorldDropIndicators();
+      scheduleDropIndicatorCleanup();
       notify('info', '当前仅支持世界书条目拖入预设');
       return;
     }
@@ -2518,8 +2531,8 @@
     removeWorldMultiDragFloat();
     clearNativeDropIndicators();
     clearWorldDropIndicators();
-    TOP.setTimeout(clearNativeDropIndicators, 0);
-    void transfer(payload.from, false, payload.keys, placement);
+    scheduleDropIndicatorCleanup();
+    void transfer(payload.from, false, payload.keys, placement).finally(scheduleDropIndicatorCleanup);
   }
 
   function onDocumentClick(event) {
@@ -2679,6 +2692,8 @@
     state.container = container;
     state.mainWrapper = mainWrapper;
     state.nativeTop = nativeTop;
+    clearNativeDropIndicators();
+    clearWorldDropIndicators();
     host.classList.add('pmm-worldbook-mode');
     container.classList.add('pm-panel-container--merge-mode', 'pmm-worldbook-layout');
     try {
@@ -2706,6 +2721,8 @@
   }
 
   function resetClosedState() {
+    clearNativeDropIndicators();
+    clearWorldDropIndicators();
     state.open = false;
     state.busy = false;
     state.status = '已同步';
@@ -2726,6 +2743,7 @@
 
   function close() {
     if (!state.open) return;
+    clearDrag();
     if (renderFrame) TOP.cancelAnimationFrame(renderFrame);
     renderFrame = 0;
     const themeToggle = state.host?.querySelector?.('.pmm-mobile-theme-toggle');

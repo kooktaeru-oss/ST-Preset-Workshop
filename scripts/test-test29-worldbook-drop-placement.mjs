@@ -25,6 +25,19 @@ assert.ok(
   '世界书拖入时不应继续把整张目标卡片边框变色',
 );
 
+for (const marker of [
+  '.section-card--drop-before,.section-card--drop-after,.section-card--drop-into',
+  '.section-group--drop-before,.section-group--drop-after,.section-group--drop-into',
+  'function scheduleDropIndicatorCleanup()',
+  'for (const delay of [0, 80, 240])',
+  '.finally(scheduleDropIndicatorCleanup)',
+  'state.nativeTop = nativeTop;\n    clearNativeDropIndicators();',
+  'function resetClosedState() {\n    clearNativeDropIndicators();',
+  'function close() {\n    if (!state.open) return;\n    clearDrag();',
+]) {
+  assert.ok(source.includes(marker), `test.29 缺少拖拽结束后的蓝线清理：${marker}`);
+}
+
 const helperStart = source.indexOf('  function entriesFromWorld(data)');
 const helperEnd = source.indexOf('  function setStatus(text)', helperStart);
 const insertStart = source.indexOf('  function insertWorldEntries(target, sourceKind, entries, placement = null)');
