@@ -4,7 +4,6 @@ import { createHash } from 'node:crypto';
 const manifest = JSON.parse(await readFile(new URL('../manifest.json', import.meta.url), 'utf8'));
 const entry = await readFile(new URL('../dist/index.js', import.meta.url), 'utf8');
 const workshop = await readFile(new URL('../dist/workshop-v2.94.js', import.meta.url), 'utf8');
-const worldbookDropBridge = await readFile(new URL('../dist/worldbook-preset-drop-bridge.js', import.meta.url), 'utf8');
 const migrationBase = await readFile(new URL('../dist/workshop-v2.53.js', import.meta.url), 'utf8');
 const bridge = await readFile(new URL('../bridge/predefine.js', import.meta.url), 'utf8');
 const legacy = JSON.parse(await readFile(new URL('../legacy/🧩预设工坊｜双端适配v2.53.json', import.meta.url), 'utf8'));
@@ -29,21 +28,8 @@ if (workshop.length < 1_000_000 || !workshop.includes('V2.94 已加载')) {
   throw new Error(`v2.94 业务入口不完整：${workshop.length} 字符`);
 }
 
-if (
-  !entry.includes('workshop-v2.94.js')
-  || !entry.includes('worldbook-stitch-test3.js')
-  || !entry.includes('worldbook-preset-drop-bridge.js')
-  || !entry.includes("const EXTENSION_VERSION = '2.97.4'")
-) {
+if (!entry.includes('workshop-v2.94.js') || !entry.includes('worldbook-stitch-test3.js') || !entry.includes("const EXTENSION_VERSION = '2.97.5'")) {
   throw new Error('扩展启动器没有指向 v2.94');
-}
-
-if (
-  !worldbookDropBridge.includes('__PMM_WORLDBOOK_PRESET_DROP_BRIDGE__')
-  || !worldbookDropBridge.includes('vue.createApp = function trackedCreateApp')
-  || !worldbookDropBridge.includes('await dispatcher.drop(...args);')
-) {
-  throw new Error('世界书原生预设拖入桥不完整');
 }
 
 if (!workshop.includes('readPresetExtensionField?.({name:requested,path:PATH})')) {

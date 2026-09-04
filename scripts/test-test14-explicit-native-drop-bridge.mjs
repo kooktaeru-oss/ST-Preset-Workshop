@@ -3,8 +3,6 @@ import { readFile } from 'node:fs/promises';
 
 const workshop = await readFile(new URL('../dist/workshop-v2.94.js', import.meta.url), 'utf8');
 const worldbook = await readFile(new URL('../dist/worldbook-stitch-test3.js', import.meta.url), 'utf8');
-const entry = await readFile(new URL('../dist/index.js', import.meta.url), 'utf8');
-const runtimeBridge = await readFile(new URL('../dist/worldbook-preset-drop-bridge.js', import.meta.url), 'utf8');
 
 for (const marker of [
   'const _pmmWorldbookPresetDropBridge=',
@@ -103,19 +101,5 @@ for (const marker of [
   assert.ok(worldbook.includes(marker), `test.14 柏宝箱分组直连兜底缺少实现：${marker}`);
 }
 assert.ok(transfer.indexOf('if (await fallbackBaiBaiGroupedPresetDrop(target, additions, placement))') < transfer.indexOf("notify('error', '目标分组已识别，但未取得工坊拖入处理器；已取消拖入以避免条目掉到组外')"), '柏宝箱直连兜底必须先于安全取消提示执行');
-
-for (const marker of [
-  "const VUE_TRACKER_KEY = '__PMM_WORLDBOOK_VUE_APP_TRACKER__';",
-  'vue.createApp = function trackedCreateApp',
-  'app.mixin({',
-  'source.onCrossPanelDrop',
-  'await dispatcher.drop(...args);',
-  'owner[API_KEY] = bridge',
-]) {
-  assert.ok(runtimeBridge.includes(marker), 'test.14 运行时原生拖入桥缺少实现：' + marker);
-}
-const bridgeScript = entry.indexOf('<script src="${worldbookBridgeUrl}"></script>');
-const workshopScript = entry.indexOf('<script type="module" src="${workshopUrl}"></script>');
-assert.ok(bridgeScript >= 0 && bridgeScript < workshopScript, '运行时原生拖入桥必须先于工坊主程序加载');
 
 console.log('test.14 回归通过：世界书拖入优先交给工坊核心桥，柏宝箱分组在桥未挂载时会安全直连归组。');
