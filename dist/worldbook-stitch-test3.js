@@ -2298,7 +2298,26 @@
     });
   }
 
+  function endNativePresetDragState() {
+    const card = state.nativeTop?.querySelector?.('.prompt-card[draggable="true"],.prompt-card,.prompt-item[draggable="true"]');
+    if (!card) return false;
+    try {
+      let event;
+      try {
+        event = new TOP.DragEvent('dragend', { bubbles:true, cancelable:false });
+      } catch (_) {
+        event = new TOP.Event('dragend', { bubbles:true, cancelable:false });
+      }
+      card.dispatchEvent(event);
+      return true;
+    } catch (error) {
+      console.warn('[世界书缝合] 原生预设拖拽状态结束信号发送失败', error);
+      return false;
+    }
+  }
+
   function scheduleDropIndicatorCleanup() {
+    endNativePresetDragState();
     clearNativeDropIndicators();
     clearWorldDropIndicators();
     for (const delay of [0, 80, 240]) {
@@ -2692,6 +2711,7 @@
     state.container = container;
     state.mainWrapper = mainWrapper;
     state.nativeTop = nativeTop;
+    endNativePresetDragState();
     clearNativeDropIndicators();
     clearWorldDropIndicators();
     host.classList.add('pmm-worldbook-mode');
@@ -2721,6 +2741,7 @@
   }
 
   function resetClosedState() {
+    endNativePresetDragState();
     clearNativeDropIndicators();
     clearWorldDropIndicators();
     state.open = false;
@@ -2743,6 +2764,7 @@
 
   function close() {
     if (!state.open) return;
+    endNativePresetDragState();
     clearDrag();
     if (renderFrame) TOP.cancelAnimationFrame(renderFrame);
     renderFrame = 0;

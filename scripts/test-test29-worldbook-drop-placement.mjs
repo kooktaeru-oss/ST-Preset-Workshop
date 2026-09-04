@@ -28,12 +28,16 @@ assert.ok(
 for (const marker of [
   '.section-card--drop-before,.section-card--drop-after,.section-card--drop-into',
   '.section-group--drop-before,.section-group--drop-after,.section-group--drop-into',
+  'function endNativePresetDragState()',
+  'new TOP.DragEvent(\'dragend\', { bubbles:true, cancelable:false })',
+  'card.dispatchEvent(event);',
   'function scheduleDropIndicatorCleanup()',
+  'scheduleDropIndicatorCleanup() {\n    endNativePresetDragState();',
   'for (const delay of [0, 80, 240])',
   '.finally(scheduleDropIndicatorCleanup)',
-  'state.nativeTop = nativeTop;\n    clearNativeDropIndicators();',
-  'function resetClosedState() {\n    clearNativeDropIndicators();',
-  'function close() {\n    if (!state.open) return;\n    clearDrag();',
+  'state.nativeTop = nativeTop;\n    endNativePresetDragState();',
+  'function resetClosedState() {\n    endNativePresetDragState();',
+  'function close() {\n    if (!state.open) return;\n    endNativePresetDragState();',
 ]) {
   assert.ok(source.includes(marker), `test.29 缺少拖拽结束后的蓝线清理：${marker}`);
 }
