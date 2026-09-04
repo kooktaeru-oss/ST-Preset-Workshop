@@ -26,14 +26,14 @@ for (const marker of [
   'source.onCrossPanelDrop',
   'targetDropHandler',
   'TOP.__PMM_WORLDBOOK_PRESET_DROP_BRIDGE__',
-  'const result = await bridge.drop({',
+  'const result = await bridge.drop(bridgePayload);',
   "targetName: placement?.targetName || '',",
   'if (await emitNativePresetDrop(target, additions, placement))',
 ]) {
   assert.ok(worldbook.includes(marker), `test.14 世界书页面缺少显式桥调用：${marker}`);
 }
 
-const bridgeCall = worldbook.indexOf('const result = await bridge.drop({');
+const bridgeCall = worldbook.indexOf('const result = await bridge.drop(bridgePayload);');
 const groupedComponent = worldbook.indexOf('if (targetSectionId)');
 const saveFallback = worldbook.indexOf('await savePresetEntries(target.name, insertPresetEntries', bridgeCall);
 assert.ok(groupedComponent >= 0 && bridgeCall >= 0 && bridgeCall < groupedComponent, '分组落点必须优先通过工坊核心桥处理');
@@ -82,24 +82,20 @@ assert.ok(groupedDrop.includes('if (targetSectionId) {'), '核心桥不可用时
 assert.ok(groupedDrop.includes('placement?.targetPanelComponent || target?.panelComponent'), '核心桥失败时，分组落点必须能回退到工坊的原生拖入组件');
 assert.ok(groupedDrop.includes('targetSectionId,'), '分组落点必须把分组 ID 交给工坊核心桥');
 assert.ok(groupedDrop.includes("targetName: placement?.targetName || '',"), '分组落点必须把手指所在条目的名称交给工坊核心桥');
+assert.ok(groupedDrop.includes('for (let attempt = 0; attempt < 3; attempt += 1)'), '工坊桥稍晚挂载时必须进行短暂重试');
+assert.ok(groupedDrop.includes('await wait(50 * (attempt + 1));'), '工坊桥重试必须让出短暂挂载时间');
+assert.ok(groupedDrop.includes("targetId: '',\n            targetName: '',\n            position: 'after',"), '目标卡片重绘失效时必须通过原生桥追加到已确认分组末尾');
+assert.ok(groupedDrop.includes('const currentDispatcher = nativePresetDropDispatcher();'), '组件重挂载后必须重新取得当前拖入处理器');
 assert.ok(groupedDrop.includes("if (typeof dropHandler === 'function') await dropHandler(...args);"), '分组落点必须直接调用已发现的工坊拖入处理器');
 assert.ok(groupedDrop.includes("placement?.position || 'after',\n          targetSectionId,\n          undefined,"), '分组落点没有把所属分组传给预设面板');
 assert.ok(groupedDrop.indexOf('let bridge =') < groupedDrop.indexOf('if (targetSectionId)'), '分组落点必须先走携带分组 ID 的工坊核心桥');
-assert.ok(groupedDrop.includes('未能识别手指所在的目标条目'), '无法识别手指所在条目时必须取消拖入，而不是追加到组末尾');
+assert.ok(groupedDrop.includes('条目已通过工坊原生处理器追加到目标分组末尾'), '目标卡片失效但分组明确时必须安全归入该分组');
 
 const transfer = worldbook.slice(
   worldbook.indexOf('async function transferToNativeTop(move, forcedKeys = null, placement = null)'),
   worldbook.indexOf('async function transferWorldToWorld', worldbook.indexOf('async function transferToNativeTop(move, forcedKeys = null, placement = null)')),
 );
-for (const marker of [
-  'async function fallbackBaiBaiGroupedPresetDrop(target, additions, placement = null)',
-  "targetSectionId.startsWith('baibai_')",
-  'const queued = compat.queue({',
-  'await compat.flushPreset?.(target.name);',
-  'if (await fallbackBaiBaiGroupedPresetDrop(target, additions, placement))',
-]) {
-  assert.ok(worldbook.includes(marker), `test.14 柏宝箱分组直连兜底缺少实现：${marker}`);
-}
-assert.ok(transfer.indexOf('if (await fallbackBaiBaiGroupedPresetDrop(target, additions, placement))') < transfer.indexOf("notify('error', '目标分组已识别，但未取得工坊拖入处理器；已取消拖入以避免条目掉到组外')"), '柏宝箱直连兜底必须先于安全取消提示执行');
+assert.ok(!worldbook.includes('fallbackBaiBaiGroupedPresetDrop'), '不得恢复会用局部快照覆盖整份预设的柏宝箱直存兜底');
+assert.ok(transfer.includes("notify('error', '目标分组已识别，但未取得工坊拖入处理器；已取消拖入以避免条目掉到组外')"), '所有原生处理器都不可用时必须安全取消分组拖入');
 
-console.log('test.14 回归通过：世界书拖入优先交给工坊核心桥，柏宝箱分组在桥未挂载时会安全直连归组。');
+console.log('test.14 回归通过：世界书拖入会等待最新工坊桥，卡片重绘时安全追加到目标分组末尾，且不会直接覆盖保存。');

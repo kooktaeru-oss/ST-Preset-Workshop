@@ -872,25 +872,39 @@
 
   async function emitNativePresetDrop(target, additions, placement = null) {
     const targetSectionId = String(placement?.targetSectionId || '');
-    const component = placement?.targetPanelComponent || target?.panelComponent;
-    const dropHandler = placement?.targetDropHandler || target?.panelDropHandler;
-    let bridge = SELF.__PMM_WORLDBOOK_PRESET_DROP_BRIDGE__;
-    try {
-      bridge = bridge || TOP.__PMM_WORLDBOOK_PRESET_DROP_BRIDGE__;
-    } catch (_) {}
+    let component = placement?.targetPanelComponent || target?.panelComponent;
+    let dropHandler = placement?.targetDropHandler || target?.panelDropHandler;
+    const bridgePayload = {
+      entries: additions,
+      targetId: placement?.targetId || '',
+      targetName: placement?.targetName || '',
+      position: placement?.position || 'after',
+      targetSectionId,
+    };
+    let bridge = null;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      bridge = SELF.__PMM_WORLDBOOK_PRESET_DROP_BRIDGE__;
+      try {
+        bridge = bridge || TOP.__PMM_WORLDBOOK_PRESET_DROP_BRIDGE__;
+      } catch (_) {}
+      if (typeof bridge?.drop === 'function') break;
+      if (attempt < 2) await wait(50 * (attempt + 1));
+    }
     if (typeof bridge?.drop === 'function' && additions.length) {
       try {
-        const result = await bridge.drop({
-          entries: additions,
-          targetId: placement?.targetId || '',
-          targetName: placement?.targetName || '',
-          position: placement?.position || 'after',
-          targetSectionId,
-        });
+        const result = await bridge.drop(bridgePayload);
         if (result?.ok !== false) return true;
         if (targetSectionId && result?.reason === 'target-not-resolved') {
-          console.warn('[世界书缝合] 未能识别手指所在的目标条目，已取消拖入以免条目被追加到分组末尾');
-          return false;
+          const sectionResult = await bridge.drop({
+            ...bridgePayload,
+            targetId: '',
+            targetName: '',
+            position: 'after',
+          });
+          if (sectionResult?.ok !== false) {
+            console.info('[世界书缝合] 目标卡片已刷新，条目已通过工坊原生处理器追加到目标分组末尾');
+            return true;
+          }
         }
       } catch (error) {
         console.warn(
@@ -901,6 +915,9 @@
         );
       }
     }
+    const currentDispatcher = nativePresetDropDispatcher();
+    component = currentDispatcher?.component || component;
+    dropHandler = currentDispatcher?.drop || dropHandler;
     if (targetSectionId) {
       if (((!component || typeof component.emit !== 'function') && typeof dropHandler !== 'function') || !additions.length) {
         console.warn('[世界书缝合] 未取得目标分组对应的工坊原生桥或预设面板，已取消拖入以免条目掉到组外');
@@ -970,37 +987,6 @@
     return next;
   }
 
-  async function fallbackBaiBaiGroupedPresetDrop(target, additions, placement = null) {
-    const targetSectionId = String(placement?.targetSectionId || '');
-    if (!targetSectionId.startsWith('baibai_') || !target?.name || !additions.length) return false;
-    let compat = SELF.__PMM_BAIBAI_COMPAT__;
-    try {
-      compat = compat || TOP.__PMM_BAIBAI_COMPAT__;
-    } catch (_) {}
-    if (typeof compat?.queue !== 'function' || typeof compat?.flushPreset !== 'function') return false;
-    const newIds = additions.map(item => String(item?.id || '')).filter(Boolean);
-    if (!newIds.length) return false;
-    const nextPrompts = insertPresetEntries(target.prompts, additions, placement);
-    const queued = compat.queue({
-      presetName: target.name,
-      targetId: String(placement?.targetId || ''),
-      targetPosition: placement?.position === 'before' ? 'before' : 'after',
-      targetSectionId,
-      targetGroupTitle: String(placement?.targetGroupTitle || ''),
-      newIds,
-    });
-    if (!queued) return false;
-    try {
-      await savePresetEntries(target.name, nextPrompts);
-      await compat.flushPreset?.(target.name);
-      syncVisiblePresetEntries(target.name, nextPrompts);
-      return true;
-    } catch (error) {
-      console.warn('[世界书缝合] 柏宝箱分组直连保存失败，已保留安全取消', error);
-      return false;
-    }
-  }
-
   async function transferFromNativeTop(move, forcedIds = null, placement = null) {
     const source = nativePresetSnapshot();
     const ids = forcedIds?.length ? forcedIds.map(String) : [...source.selected];
@@ -1043,20 +1029,6 @@
         return;
       }
       if (placement?.targetSectionId) {
-        if (await fallbackBaiBaiGroupedPresetDrop(target, additions, placement)) {
-          pushUndo(source, move ? '从世界书移动到预设' : '从世界书拖入预设', {
-            worldSides:move ? [source] : [],
-            presetSnapshots:[target],
-          });
-          if (move) {
-            removeWorldEntries(source, keys);
-            markWorldDraftDirty(source);
-          }
-          source.selected.clear();
-          renderPanels();
-          notify('success', `已${move ? '移动' : '复制'} ${entries.length} 条`);
-          return;
-        }
         notify('error', '目标分组已识别，但未取得工坊拖入处理器；已取消拖入以避免条目掉到组外');
         return;
       }
