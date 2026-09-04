@@ -1,5 +1,5 @@
 const EXTENSION_NAME = '🧩预设工坊';
-const EXTENSION_VERSION = '2.97.3';
+const EXTENSION_VERSION = '2.97.4';
 const RUNTIME_ID = 'TH-script--🧩预设工坊（GitHub 扩展）--2f53f6af-3c9e-4c71-bc52-9f635be25300';
 const LEGACY_IFRAME_PREFIX = 'TH-script--🧩预设工坊';
 const EXTENSION_FOLDER_NAME = 'ST-Preset-Workshop';
@@ -209,10 +209,15 @@ async function waitForTavernHelper() {
 }
 
 function buildRuntimeDocument() {
-  const parentJqueryUrl = new URL('../bridge/parent-jquery.js', import.meta.url).href;
-  const predefineUrl = new URL('../bridge/predefine.js', import.meta.url).href;
-  const workshopUrl = new URL('./workshop-v2.94.js', import.meta.url).href;
-  const worldbookStitchUrl = new URL('./worldbook-stitch-test3.js', import.meta.url).href;
+  const appendRuntimeVersion = url => {
+    url.searchParams.set('v', EXTENSION_VERSION);
+    return url.href;
+  };
+  const parentJqueryUrl = appendRuntimeVersion(new URL('../bridge/parent-jquery.js', import.meta.url));
+  const predefineUrl = appendRuntimeVersion(new URL('../bridge/predefine.js', import.meta.url));
+  const workshopUrl = appendRuntimeVersion(new URL('./workshop-v2.94.js', import.meta.url));
+  const worldbookStitchUrl = appendRuntimeVersion(new URL('./worldbook-stitch-test3.js', import.meta.url));
+  const worldbookBridgeUrl = appendRuntimeVersion(new URL('./worldbook-preset-drop-bridge.js', import.meta.url));
   const worldbookLoaderKey = '__PMM_LOAD_WORLDBOOK_STITCH__';
 
   return `<!DOCTYPE html>
@@ -260,6 +265,7 @@ function buildRuntimeDocument() {
   };
 })();
 </script>
+<script src="${worldbookBridgeUrl}"></script>
 <script type="module" src="${workshopUrl}"></script>
 </body>
 </html>`;
