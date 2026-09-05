@@ -11,6 +11,7 @@
   const HISTORY_LIMIT = 20;
   const MULTI_DRAG_FLOAT_WIDTH = 198;
   const MULTI_DRAG_FLOAT_HEIGHT = 58;
+  const TOP_NOTIFICATION_STORAGE_KEY = 'pmm_top_notifications_enabled_v1';
   const IS_ANDROID = /Android/i.test(String(TOP.navigator?.userAgent || SELF.navigator?.userAgent || ''));
   const MODE_CLASSES = ['pm-panel-container--merge-mode', 'pm-panel-container--branch-mode', 'pm-panel-container--favorite-mode'];
   const POSITION_OPTIONS = [
@@ -68,7 +69,17 @@
   let worldMultiDragFrame = 0;
   let worldMultiDragPoint = null;
 
+  function topNotificationsEnabled() {
+    try { return (TOP.localStorage || SELF.localStorage)?.getItem(TOP_NOTIFICATION_STORAGE_KEY) !== '0'; }
+    catch (_) { return true; }
+  }
+
   function notify(type, message) {
+    if (!topNotificationsEnabled()) {
+      const logger = type === 'error' ? console.error : type === 'warning' ? console.warn : (console.debug || console.info);
+      logger?.call(console, '[世界书缝合][顶部通知已关闭]', message);
+      return;
+    }
     const toast = TOP.toastr?.[type] || SELF.toastr?.[type];
     if (typeof toast === 'function') toast(message, '世界书缝合');
     else console[type === 'error' ? 'error' : 'info'](`[世界书缝合] ${message}`);

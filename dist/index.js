@@ -1,5 +1,5 @@
 const EXTENSION_NAME = '🧩预设工坊';
-const EXTENSION_VERSION = '2.97.10';
+const EXTENSION_VERSION = '2.97.11';
 const RUNTIME_ID = 'TH-script--🧩预设工坊（GitHub 扩展）--2f53f6af-3c9e-4c71-bc52-9f635be25300';
 const LEGACY_IFRAME_PREFIX = 'TH-script--🧩预设工坊';
 const EXTENSION_FOLDER_NAME = 'ST-Preset-Workshop';
@@ -9,6 +9,7 @@ const VERSION_CHECK_INTERVAL = 30_000;
 const RAPID_VERSION_CHECK_INTERVAL = 750;
 const RAPID_VERSION_CHECK_TIMEOUT = 65_000;
 const NATIVE_UPDATE_RELOAD_DELAY = 1_000;
+const TOP_NOTIFICATION_STORAGE_KEY = 'pmm_top_notifications_enabled_v1';
 
 let versionCheckTimer = null;
 let versionCheckBusy = false;
@@ -20,7 +21,17 @@ let bulkExtensionUpdateInProgress = false;
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+function topNotificationsEnabled() {
+  try { return globalThis.localStorage?.getItem(TOP_NOTIFICATION_STORAGE_KEY) !== '0'; }
+  catch (_) { return true; }
+}
+
 function notify(type, message) {
+  if (!topNotificationsEnabled()) {
+    const logger = type === 'error' ? console.error : type === 'warning' ? console.warn : (console.debug || console.info);
+    logger?.call(console, `[${EXTENSION_NAME}][顶部通知已关闭]`, message);
+    return;
+  }
   const toast = globalThis.toastr?.[type];
   if (typeof toast === 'function') {
     toast(message, EXTENSION_NAME);
@@ -216,7 +227,7 @@ function buildRuntimeDocument() {
   };
   const parentJqueryUrl = appendRuntimeVersion(new URL('../bridge/parent-jquery.js', import.meta.url).href);
   const predefineUrl = appendRuntimeVersion(new URL('../bridge/predefine.js', import.meta.url).href);
-  const workshopUrl = appendRuntimeVersion(new URL('./workshop-v2.97.js', import.meta.url).href);
+  const workshopUrl = appendRuntimeVersion(new URL('./workshop-v2.98.js', import.meta.url).href);
   const worldbookStitchUrl = appendRuntimeVersion(new URL('./worldbook-stitch-test3.js', import.meta.url).href);
   const worldbookLoaderKey = '__PMM_LOAD_WORLDBOOK_STITCH__';
 
