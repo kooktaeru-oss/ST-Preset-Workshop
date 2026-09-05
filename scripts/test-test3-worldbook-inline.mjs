@@ -52,4 +52,27 @@ if (!closedState.includes('resetSide(state.top, true)')
   throw new Error('退出世界书工作区没有保留上卡类型与世界书选择');
 }
 
+const legacyStart = source.indexOf('  async function getLegacyWorldInfoNames()');
+const compatibleStart = source.indexOf('  async function getWorldInfoNamesCompatible()', legacyStart);
+const refreshStart = source.indexOf('  async function refreshWorldNames()', compatibleStart);
+const legacy = source.slice(legacyStart, compatibleStart);
+const compatible = source.slice(compatibleStart, refreshStart);
+const refresh = source.slice(refreshStart, source.indexOf('  function helperFunction(', refreshStart));
+for (const marker of [
+  "await TOP.fetch('/api/settings/get'",
+  'headers: context.getRequestHeaders()',
+  'Array.isArray(data?.world_names) ? data.world_names : []',
+]) {
+  if (!legacy.includes(marker)) throw new Error(`旧版酒馆世界书列表读取缺少实现：${marker}`);
+}
+for (const marker of [
+  "if (typeof context?.getWorldInfoNames === 'function')",
+  'return await context.getWorldInfoNames();',
+  'return await getLegacyWorldInfoNames();',
+]) {
+  if (!compatible.includes(marker)) throw new Error(`新旧酒馆世界书枚举严格分流缺少实现：${marker}`);
+}
+if (compatible.includes('worldNames.length')) throw new Error('不得因 1.18 暂时返回空列表而误切换旧版接口');
+if (refresh.match(/await getWorldInfoNamesCompatible\(\)/g)?.length !== 2) throw new Error('初次读取和原生刷新后没有统一使用兼容入口');
+
 console.log('test.3 世界书原生双卡片静态回归检查通过。');
