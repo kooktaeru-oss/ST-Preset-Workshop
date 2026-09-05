@@ -1804,7 +1804,6 @@
       if (copy) side.expanded.add(entryKey(copy));
       markWorldDraftDirty(side);
       renderPanels();
-      notify('success', '已复制条目');
     });
   }
 
@@ -1844,7 +1843,6 @@
           await loadWorldSide(state.bottom);
           if (state.topType === 'world') await loadWorldSide(state.top);
           renderPanels();
-          notify('success', `世界书已重命名为“${selectedName}”`);
           return;
         }
       }
@@ -2146,7 +2144,6 @@
       return enqueue('保存世界书', async () => {
         await saveWorldSide(side);
         renderPanels();
-        notify('success', '世界书已保存');
       });
     }
     if (action === 'exit') return close();
